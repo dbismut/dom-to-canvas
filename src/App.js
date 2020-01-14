@@ -52,7 +52,7 @@ function WebGLFigure({ id }) {
       {...props}
       ref={mesh}
       scale={scale}
-      position={[position[0] - viewport.width / 2, position[1] + viewport.height / 2, 0]}>
+      position={[position[0] - viewport.width / 2, pos(last.current, position[1], viewport.height), 0]}>
       <planeBufferGeometry attach="geometry" args={[1, 1, 32, 32]} />
       <customMaterial ref={mat} attach="material" map={material} aspect={scale[0] / scale[1]} />
     </mesh>
@@ -77,6 +77,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    scroll.top = window.scrollY
     let y = scroll.top
     function raf() {
       y = lerp(y, scroll.top, 0.06)

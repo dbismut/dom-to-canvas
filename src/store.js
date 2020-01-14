@@ -16,7 +16,7 @@ const [useStore] = create(set => ({
 
 const scroll = {
   zoom: 1,
-  top: window.scrollY,
+  top: 0,
   vy: 0
 }
 
