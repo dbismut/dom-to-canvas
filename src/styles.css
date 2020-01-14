@@ -25,11 +25,6 @@ main {
   width: 100vw;
 }
 
-/* #root>*:not(first-child) {
-  position: relative;
-  z-index: 1;
-} */
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -43,7 +38,6 @@ main {
   font-size: 0.6em;
   margin-top: 0;
   margin-bottom: 12px;
-  pointer-events: all;
 }
 
 .grid>div {
@@ -76,4 +70,8 @@ main {
 .grid>div:nth-child(8n) {
   grid-column: span 3;
   grid-row: span 3;
+}
+
+h1, h2, h3, h4, p {
+  pointer-events: all;
 }
