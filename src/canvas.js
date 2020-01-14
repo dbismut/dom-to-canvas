@@ -3,6 +3,7 @@ import { Canvas } from 'react-three-fiber'
 import uuid from 'uuid/v1'
 import { scroll, useStore } from './store'
 import { debounce } from './utils'
+import './CustomMaterial'
 
 function Objects() {
   const objects = useStore(state => state.objects)
@@ -48,10 +49,12 @@ export function useCanvasObject(props, elementClass) {
   }, [removeObject, debouncedUpdateBounds])
 
   useEffect(() => {
-    if (!src) return
-    const img = new Image()
-    img.src = src
-    img.onload = updateBounds
+    if (!src) updateBounds()
+    else {
+      const img = new Image()
+      img.src = src
+      img.onload = updateBounds
+    }
   }, [src, updateBounds])
 
   useEffect(() => {

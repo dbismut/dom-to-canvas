@@ -1,5 +1,4 @@
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
   background: #ffffff;
@@ -12,16 +11,24 @@ body {
   box-sizing: border-box;
 }
 
+main {
+  position: fixed;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  padding: 20px;
+  pointer-events: none;
+}
+
 #root {
   position: relative;
   width: 100vw;
-  padding: 20px;
 }
 
-#root > *:not(first-child) {
+/* #root>*:not(first-child) {
   position: relative;
   z-index: 1;
-}
+} */
 
 .grid {
   display: grid;
@@ -29,22 +36,24 @@ body {
   grid-template-rows: repeat(6, 300px);
   grid-gap: 1rem;
   grid-auto-flow: dense;
+  pointer-events: none;
 }
 
 .grid h4 {
   font-size: 0.6em;
   margin-top: 0;
   margin-bottom: 12px;
+  pointer-events: all;
 }
 
-.grid > div {
+.grid>div {
   position: relative;
   display: flex;
   flex-direction: column;
   flex-basis: 33%;
 }
 
-.grid > div > div {
+.grid>div>div {
   flex: 1;
   height: 0px;
 }
@@ -55,13 +64,16 @@ body {
   height: 100%;
 }
 
-.grid > div:nth-child(4n) {
-  grid-column: span 2; /* Spans two columns */
-  grid-row: span 2; /* Spans two rows */
+.grid>div:nth-child(4n) {
+  grid-column: span 2;
+  /* Spans two columns */
+  grid-row: span 2;
+  /* Spans two rows */
 }
 
 /* This will create 3x images every 8 elements */
-.grid > div:nth-child(8n) {
+
+.grid>div:nth-child(8n) {
   grid-column: span 3;
   grid-row: span 3;
 }

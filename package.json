@@ -10,7 +10,7 @@
     "react-dom": "experimental",
     "react-scripts": "3.2.0",
     "react-spring": "^9.0.0-canary.808.14.192785c",
-    "react-three-fiber": "4.0.0-beta.16",
+    "react-three-fiber": "^4.0.6",
     "react-use-gesture": "^7.0.0-beta.10",
     "three": "0.112.1",
     "uuid": "^3.3.3",
