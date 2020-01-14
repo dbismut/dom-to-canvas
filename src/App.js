@@ -19,7 +19,7 @@ function WebGLFigure({ id }) {
   const { viewport } = useThree()
   const mat = useRef()
   const mesh = useRef()
-  const last = useRef(window.scrollY)
+  const last = useRef(scroll.top)
   const lastV = useRef(0)
 
   useFrame(() => {
