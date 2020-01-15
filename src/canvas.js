@@ -35,7 +35,7 @@ export function useCanvasObject(props, elementClass) {
     const { left, top, width, height } = ref.current.getBoundingClientRect()
     set({
       sizes: {
-        position: [left + width / 2, -top - height / 2 - window.scrollY],
+        position: [left + width / 2, -top - height / 2 - scroll.top],
         scale: [width, height, 0.00001]
       }
     })

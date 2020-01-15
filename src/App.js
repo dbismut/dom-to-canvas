@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import lerp from 'lerp'
 import { useFrame, useThree } from 'react-three-fiber'
-import { useScroll } from 'react-use-gesture'
+import { useScroll, useMove } from 'react-use-gesture'
 import * as THREE from 'three/src/Three'
 import { scroll, useStore } from './store'
 import { ImageCanvas, useCanvasObject } from './canvas'
@@ -21,6 +21,17 @@ function WebGLFigure({ id }) {
   const mesh = useRef()
   const last = useRef(scroll.top)
   const lastV = useRef(0)
+  const uMouse = useRef()
+  const uVelo = useRef(0)
+  const vel = useRef(0)
+
+  const bind = useMove(
+    ({ event, velocity, active }) => {
+      uMouse.current = event.uv
+      vel.current = velocity / 10
+    },
+    { eventOptions: { pointer: true } }
+  )
 
   useFrame(() => {
     if (!mat.current) return
@@ -30,7 +41,10 @@ function WebGLFigure({ id }) {
     mat.current.scale = Math.abs((sizes.position[1] + sizes.scale[1] / 2 + last.current) / viewport.height / 5)
 
     lastV.current = lerp(lastV.current, scroll.vy, 0.1)
-    mat.current.shift = lastV.current / 10
+    mat.current.shift = lastV.current / 20
+    mat.current.uMouse = uMouse.current
+    uVelo.current = lerp(uVelo.current, vel.current, 0.1)
+    mat.current.uVelo = uVelo.current
   })
 
   useEffect(() => {
@@ -50,6 +64,7 @@ function WebGLFigure({ id }) {
   return (
     <mesh
       {...props}
+      {...bind()}
       ref={mesh}
       scale={scale}
       position={[position[0] - viewport.width / 2, pos(last.current, position[1], viewport.height), 0]}>
