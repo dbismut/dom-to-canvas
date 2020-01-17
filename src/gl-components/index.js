@@ -1,9 +1,8 @@
 import React, { useRef, useCallback, useEffect } from 'react'
 import { Canvas } from 'react-three-fiber'
 import uuid from 'uuid/v1'
-import { scroll, useStore } from './store'
-import { debounce } from './utils'
-import './CustomMaterial'
+import { scroll, useStore } from '../store'
+import { debounce } from '../utils'
 
 function Objects() {
   const objects = useStore(state => state.objects)
@@ -27,19 +26,19 @@ export function useCanvasObject(props, elementClass) {
   const addObject = useStore(state => state.addObject)
   const updateProps = useStore(state => state.updateProps)
   const removeObject = useStore(state => state.removeObject)
+  const initialized = useRef(false)
   const { src } = props
 
   const set = useCallback(newProps => updateProps(id.current, newProps), [updateProps])
 
   const updateBounds = useCallback(() => {
     const { left, top, width, height } = ref.current.getBoundingClientRect()
-    set({
-      sizes: {
-        position: [left + width / 2, -top - height / 2 - scroll.top],
-        scale: [width, height, 0.00001]
-      }
-    })
-  }, [set])
+    set({ bounds: { left, top, width, height, scrollY: scroll.top } })
+    if (!initialized.current) {
+      initialized.current = true
+      addObject(id.current, elementClass)
+    }
+  }, [set, addObject, elementClass])
 
   const debouncedUpdateBounds = debounce(updateBounds, 500)
 
@@ -59,9 +58,8 @@ export function useCanvasObject(props, elementClass) {
 
   useEffect(() => {
     const _id = id.current
-    addObject(_id, elementClass)
     return () => removeObject(_id)
-  }, [addObject, removeObject, elementClass])
+  }, [removeObject])
 
   useEffect(() => {
     set(props)

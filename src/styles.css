@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background: #ffffff;
@@ -18,6 +19,7 @@ main {
   left: 0;
   padding: 20px;
   pointer-events: none;
+  transition: opacity 300ms ease;
 }
 
 #root {
@@ -40,14 +42,14 @@ main {
   margin-bottom: 12px;
 }
 
-.grid>div {
+.grid > div {
   position: relative;
   display: flex;
   flex-direction: column;
   flex-basis: 33%;
 }
 
-.grid>div>div {
+.grid > div > div {
   flex: 1;
   height: 0px;
 }
@@ -58,7 +60,7 @@ main {
   height: 100%;
 }
 
-.grid>div:nth-child(4n) {
+.grid > div:nth-child(4n) {
   grid-column: span 2;
   /* Spans two columns */
   grid-row: span 2;
@@ -67,11 +69,15 @@ main {
 
 /* This will create 3x images every 8 elements */
 
-.grid>div:nth-child(8n) {
+.grid > div:nth-child(8n) {
   grid-column: span 3;
   grid-row: span 3;
 }
 
-h1, h2, h3, h4, p {
+h1,
+h2,
+h3,
+h4,
+p {
   pointer-events: all;
 }

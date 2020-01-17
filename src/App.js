@@ -1,85 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react'
-import lerp from 'lerp'
-import { useFrame, useThree } from 'react-three-fiber'
-import { useScroll, useMove } from 'react-use-gesture'
-import * as THREE from 'three/src/Three'
-import { scroll, useStore } from './store'
-import { ImageCanvas, useCanvasObject } from './canvas'
-import './styles.css'
-import './CustomMaterial'
+import { useScroll } from 'react-use-gesture'
+import { scroll } from './store'
+import { ImageCanvas } from './gl-components'
+import Img from './components/Img'
 
 import { names, imgs } from './data'
-
-const loader = new THREE.TextureLoader()
-const pos = (y, top, height) => y + top + height / 2
-
-function WebGLFigure({ id }) {
-  const { sizes, src, ...props } = useStore(state => state.props[id])
-  const [material, setMaterial] = useState(null)
-  const { viewport } = useThree()
-  const mat = useRef()
-  const mesh = useRef()
-  const last = useRef(scroll.top)
-  const lastV = useRef(0)
-  const uMouse = useRef()
-  const uVelo = useRef(0)
-  const vel = useRef(0)
-
-  const bind = useMove(
-    ({ event, velocity, active }) => {
-      uMouse.current = event.uv
-      vel.current = velocity / 10
-    },
-    { eventOptions: { pointer: true } }
-  )
-
-  useFrame(() => {
-    if (!mat.current) return
-    last.current = lerp(last.current, scroll.top, 0.1)
-    mesh.current.position.y = pos(last.current, sizes.position[1], viewport.height)
-
-    mat.current.scale = Math.abs((sizes.position[1] + sizes.scale[1] / 2 + last.current) / viewport.height / 5)
-
-    lastV.current = lerp(lastV.current, scroll.vy, 0.1)
-    mat.current.shift = lastV.current / 20
-    mat.current.uMouse = uMouse.current
-    uVelo.current = lerp(uVelo.current, vel.current, 0.1)
-    mat.current.uVelo = uVelo.current
-  })
-
-  useEffect(() => {
-    if (!sizes) return
-    loader.load(src, tex => {
-      tex.generateMipmaps = false
-      tex.minFilter = THREE.LinearFilter
-      tex.needsUpdate = true
-      setMaterial(tex)
-    })
-  }, [src, sizes])
-
-  if (!sizes || !material) return null
-
-  const { scale, position } = sizes
-
-  return (
-    <mesh
-      {...props}
-      {...bind()}
-      ref={mesh}
-      scale={scale}
-      position={[position[0] - viewport.width / 2, pos(last.current, position[1], viewport.height), 0]}>
-      <planeBufferGeometry attach="geometry" args={[1, 1, 32, 32]} />
-      <customMaterial ref={mat} attach="material" map={material} aspect={scale[0] / scale[1]} />
-    </mesh>
-  )
-}
-
-WebGLFigure.whyDidYouRender = false
-
-function Img({ className, style, alt, ...props }) {
-  const [el] = useCanvasObject(props, WebGLFigure)
-  return <img ref={el} style={{ ...style, opacity: 0 }} src={props.src} alt={alt} />
-}
+import './styles.css'
 
 export default function App() {
   const ref = useRef(null)
@@ -91,12 +17,11 @@ export default function App() {
     return () => window.removeEventListener('resize', updateBodySize)
   }, [])
 
-  useEffect(() => {
-    scroll.top = window.scrollY
-    let y = scroll.top
+  React.useEffect(() => {
+    scroll.top = scroll.top_lerp = window.scrollY
     function raf() {
-      y = lerp(y, scroll.top, 0.06)
-      ref.current.style.transform = `translate3d(0,${-y}px,0)`
+      scroll.tick()
+      ref.current.style.transform = `translate3d(0,${-scroll.top_lerp}px,0)`
       requestAnimationFrame(raf)
     }
     raf()
@@ -110,19 +35,26 @@ export default function App() {
     { domTarget: window }
   )
 
+  const [index, setIndex] = useState(-1)
+
   useEffect(windowScroll, [windowScroll])
 
   return (
     <>
       <ImageCanvas />
-      <main ref={ref}>
+      <main ref={ref} style={{ opacity: index >= 0 ? 0 : 1 }}>
         <h1>The trees</h1>
         <div className="grid">
-          {names.map((name, index) => (
+          {names.map((name, i) => (
             <div key={name}>
               <h4>{name}</h4>
               <div>
-                <Img alt={name} src={imgs[index]} onClick={() => console.log(name)} />
+                <Img
+                  selected={i === index}
+                  alt={name}
+                  src={imgs[i]}
+                  onClick={() => setIndex(_i => (_i === i ? -1 : i))}
+                />
               </div>
             </div>
           ))}
