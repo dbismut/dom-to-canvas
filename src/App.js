@@ -3,12 +3,16 @@ import { useScroll } from 'react-use-gesture'
 import { scroll } from './store'
 import { ImageCanvas } from './gl-components'
 import Img from './components/Img'
+import { useSpring, a } from 'react-spring'
 
 import { names, imgs } from './data'
 import './styles.css'
 
 export default function App() {
   const ref = useRef(null)
+  const [{ y, vy }, set] = useSpring(() => ({ y: -window.scrollY, vy: 0 }))
+  scroll.y = y
+  scroll.vy = vy
 
   useEffect(() => {
     const updateBodySize = () => (document.body.style.height = ref.current.getBoundingClientRect().height + 'px')
@@ -17,20 +21,9 @@ export default function App() {
     return () => window.removeEventListener('resize', updateBodySize)
   }, [])
 
-  React.useEffect(() => {
-    scroll.top = scroll.top_lerp = window.scrollY
-    function raf() {
-      scroll.tick()
-      ref.current.style.transform = `translate3d(0,${-scroll.top_lerp}px,0)`
-      requestAnimationFrame(raf)
-    }
-    raf()
-  }, [])
-
   const windowScroll = useScroll(
     ({ xy: [, y], vxvy: [, vy] }) => {
-      scroll.top = y
-      scroll.vy = vy
+      set({ y: -y, vy })
     },
     { domTarget: window }
   )
@@ -42,7 +35,7 @@ export default function App() {
   return (
     <>
       <ImageCanvas />
-      <main ref={ref} style={{ opacity: index >= 0 ? 0 : 1 }}>
+      <a.main ref={ref} style={{ y, opacity: index >= 0 ? 0 : 1 }}>
         <h1>The trees</h1>
         <div className="grid">
           {names.map((name, i) => (
@@ -59,7 +52,7 @@ export default function App() {
             </div>
           ))}
         </div>
-      </main>
+      </a.main>
     </>
   )
 }

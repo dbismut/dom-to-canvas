@@ -1,12 +1,10 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react'
-import lerp from 'lerp'
-import { useFrame, useThree } from 'react-three-fiber'
+import { useThree } from 'react-three-fiber'
 import { useMove } from 'react-use-gesture'
+import { useSpring, to, a } from 'react-spring/three'
 import * as THREE from 'three/src/Three'
 import { scroll, useStore } from '../store'
-import './CustomMaterial'
-
-import { Vector3 } from 'three/src/Three'
+import CustomMaterial from './CustomMaterial'
 
 const loader = new THREE.TextureLoader()
 
@@ -19,19 +17,6 @@ export default function MorphImage({ id }) {
   const { viewport } = useThree()
   const mat = useRef()
   const mesh = useRef()
-  const _mouse = useRef({ xy: undefined, velocity: 0 })
-  const _vel = useRef(0)
-  const _position = useRef()
-  const _scale = useRef()
-
-  const bind = useMove(
-    ({ event, velocity, active }) => {
-      event.stopPropagation()
-      _mouse.current.xy = event.uv
-      _vel.current = velocity / 10
-    },
-    { eventOptions: { pointer: true } }
-  )
 
   const bounds = useMemo(() => {
     if (!initialBounds) return null
@@ -41,34 +26,25 @@ export default function MorphImage({ id }) {
     const width = selected ? vw : w
     const height = selected ? vh / 1 : h
     const x = posX(0, selected ? 0 : left, width, vw)
-    const y = posY(0, selected ? 0 : top + scrollY, height, vh)
+    const y = posY(0, selected ? 0 : top - scrollY, height, vh)
 
     return { width, height, x, y }
   }, [initialBounds, selected, viewport])
 
-  useFrame(() => {
-    if (!mat.current) return
+  // scale
+  const { width, height, x, y, progress } = useSpring({ ...bounds, progress: selected ? 1 : 0 })
 
-    const { height: vh } = viewport
+  // mouse for material deformation
+  const [{ mouseX, mouseY, mouseVelocity }, set] = useSpring(() => ({ mouseX: 0, mouseY: 0, mouseVelocity: 0 }))
 
-    const { x, y, width, height } = bounds
-
-    _position.current.set(x, selected ? y : y + scroll.top, selected ? 10 : 0)
-    _scale.current.set(width, height, 0.00001)
-
-    mesh.current.position.lerp(_position.current, 0.1)
-    mesh.current.scale.lerp(_scale.current, 0.05)
-
-    _mouse.current.velocity = lerp(_mouse.current.velocity, _vel.current, 0.1)
-
-    mat.current.scale = Math.abs(mesh.current.position.y / vh / 5)
-    mat.current.shift = scroll.vy_lerp / 20
-
-    mat.current.uMouse = _mouse.current.xy
-    mat.current.aspect = mesh.current.scale.x / mesh.current.scale.y
-    mat.current.uVelo = _mouse.current.velocity
-    mat.current.progress = lerp(mat.current.progress, selected ? 1 : 0, 0.05)
-  })
+  const bind = useMove(
+    ({ event, velocity, active }) => {
+      event.stopPropagation()
+      const { x, y } = event.uv
+      set({ mouseX: x, mouseY: y, mouseVelocity: velocity / 10 })
+    },
+    { eventOptions: { pointer: true } }
+  )
 
   useEffect(() => {
     if (!src) return
@@ -80,15 +56,6 @@ export default function MorphImage({ id }) {
     })
   }, [src])
 
-  React.useLayoutEffect(() => {
-    if (!material || _position.current) return
-    _position.current = new Vector3(bounds.x, bounds.y, 0.0)
-    _scale.current = new Vector3(bounds.width, bounds.height, 0.00001)
-    mesh.current.position.add(_position.current)
-    mesh.current.position.y += scroll.top
-    mesh.current.scale.add(_scale.current)
-  }, [bounds, material])
-
   const handleClick = event => {
     event.stopPropagation()
     onClick && onClick()
@@ -96,11 +63,33 @@ export default function MorphImage({ id }) {
 
   if (!material) return null
 
+  const meshY = to([y, scroll.y], (y, s) => (selected ? y : y - s))
+
   return (
-    <mesh {...props} {...bind()} onClick={handleClick} ref={mesh}>
+    <a.mesh
+      {...props}
+      {...bind()}
+      position-x={x}
+      position-y={meshY}
+      scale-x={width}
+      scale-y={height}
+      scale-z={0.00001}
+      onClick={handleClick}
+      ref={mesh}>
       <planeBufferGeometry attach="geometry" args={[1, 1, 16, 16]} />
-      <customMaterial ref={mat} attach="material" map={material} />
-    </mesh>
+      <CustomMaterial
+        ref={mat}
+        attach="material"
+        map={material}
+        mouse-x={mouseX}
+        mouse-y={mouseY}
+        velocity={mouseVelocity}
+        progress={progress}
+        shift={scroll.vy.to(v => v / 10)}
+        aspect={to([width, height], (w, h) => w / h)}
+        scale={meshY.to(y => Math.abs(y) / viewport.height / 5)}
+      />
+    </a.mesh>
   )
 }
 

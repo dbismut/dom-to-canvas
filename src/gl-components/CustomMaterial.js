@@ -1,4 +1,5 @@
 import { ShaderMaterial, Vector2 } from 'three'
+import { animated } from 'react-spring'
 import { extend } from 'react-three-fiber'
 
 class CustomMaterial extends ShaderMaterial {
@@ -111,20 +112,19 @@ class CustomMaterial extends ShaderMaterial {
     return this.uniforms.texture.value
   }
 
-  set uMouse(value) {
-    if (!value) return
-    this.uniforms.uMouse.value = value
+  set mouse(value) {
+    this.uniforms.uMouse.value = new Vector2(...value)
   }
 
-  get uMouse() {
+  get mouse() {
     return this.uniforms.uMouse.value
   }
 
-  set uVelo(value) {
+  set velocity(value) {
     this.uniforms.uVelo.value = value
   }
 
-  get uVelo() {
+  get velocity() {
     return this.uniforms.uVelo.value
   }
 
@@ -146,3 +146,4 @@ class CustomMaterial extends ShaderMaterial {
 }
 
 extend({ CustomMaterial })
+export default animated('customMaterial')

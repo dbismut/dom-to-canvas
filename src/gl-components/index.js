@@ -33,7 +33,7 @@ export function useCanvasObject(props, elementClass) {
 
   const updateBounds = useCallback(() => {
     const { left, top, width, height } = ref.current.getBoundingClientRect()
-    set({ bounds: { left, top, width, height, scrollY: scroll.top } })
+    set({ bounds: { left, top, width, height, scrollY: scroll.y.get() } })
     if (!initialized.current) {
       initialized.current = true
       addObject(id.current, elementClass)
