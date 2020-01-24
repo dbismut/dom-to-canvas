@@ -1,26 +1,9 @@
-import React, { useRef, useCallback, useEffect } from 'react'
-import { Canvas } from 'react-three-fiber'
+import { useRef, useCallback, useEffect } from 'react'
 import uuid from 'uuid/v1'
 import { scroll, useStore } from '../store'
 import { debounce } from '../utils'
 
-function Objects() {
-  const objects = useStore(state => state.objects)
-  return Object.entries(objects).map(([id, elementClass]) => React.createElement(elementClass, { key: id, id }))
-}
-
-export function ImageCanvas() {
-  return (
-    <Canvas
-      orthographic
-      camera={{ zoom: scroll.zoom, position: [0, 0, 500] }}
-      style={{ position: 'fixed', top: 0, left: 0 }}>
-      <Objects />
-    </Canvas>
-  )
-}
-
-export function useCanvasObject(props, elementClass) {
+export default function useCanvasObject(props, elementClass) {
   const ref = useRef(null)
   const id = useRef(uuid())
   const addObject = useStore(state => state.addObject)

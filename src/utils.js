@@ -1,3 +1,5 @@
+import { useRef, useEffect } from 'react'
+
 export function debounce(callback, wait, immediate = false) {
   let timeout = null
 
@@ -12,4 +14,12 @@ export function debounce(callback, wait, immediate = false) {
       next()
     }
   }
+}
+
+export function usePrevious(value) {
+  const ref = useRef(value)
+  useEffect(() => {
+    ref.current = value
+  })
+  return ref.current
 }
