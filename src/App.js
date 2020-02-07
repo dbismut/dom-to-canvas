@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useGesture } from 'react-use-gesture'
+import { useWebGLSupport } from './context'
+
 import { scroll, pointer, bounds } from './store'
 import ImageCanvas from './gl-components/ImageCanvas'
 import Img from './components/Img'
@@ -9,6 +11,7 @@ import './styles.css'
 
 export default function App() {
   const ref = useRef(null)
+  const webGLSupported = useWebGLSupport()
 
   useEffect(() => {
     const updateBodySize = () => {
@@ -52,7 +55,7 @@ export default function App() {
 
   return (
     <>
-      <ImageCanvas />
+      {webGLSupported && <ImageCanvas />}
       <main ref={ref} style={{ opacity: index >= 0 ? 0 : 1 }}>
         <h1>The trees</h1>
         <div className="grid">
