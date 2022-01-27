@@ -14,7 +14,7 @@
     "react-spring": "^9.0.0-canary.808.14.192785c",
     "react-three-fiber": "^4.0.6",
     "react-use-gesture": "^7.0.0-beta.11",
-    "three": "0.112.1",
+    "three": "0.137.0",
     "uuid": "^3.3.3",
     "zustand": "^2.2.2"
   },
